@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: urban-green-tracker
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/urban_green_tracker
+    username: postgres
+    password: 7777
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    # Không để update tự động vì mình đã thiết kế DB siêu chuẩn bằng file SQL rồi
+    hibernate:
+      ddl-auto: none 
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        # Dialect đặc biệt dành riêng cho PostGIS
+        dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
