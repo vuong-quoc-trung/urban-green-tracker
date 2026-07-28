@@ -37,4 +37,14 @@ public class Comment {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE";
+
+    // THÊM MỚI: Đính kèm ảnh/video vào bình luận
+    @Column(name = "media_url", length = 500)
+    private String mediaUrl;
+
+    @Column(name = "media_type", length = 20)
+    private String mediaType; // IMAGE, VIDEO
 }
