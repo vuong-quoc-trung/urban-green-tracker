@@ -2,20 +2,41 @@ spring:
   application:
     name: urban-green-tracker
 
-spring:
+  # Cấu hình kết nối PostgreSQL + PostGIS
   datasource:
     url: jdbc:postgresql://localhost:5432/urban_green_tracker
     username: postgres
     password: 7777
     driver-class-name: org.postgresql.Driver
-  
+
+  # Cấu hình Hibernate (Giữ nguyên không tự động sinh bảng)
   jpa:
-    # Không để update tự động vì mình đã thiết kế DB siêu chuẩn bằng file SQL rồi
     hibernate:
       ddl-auto: none 
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        # Dialect đặc biệt dành riêng cho PostGIS
-        dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # Cấu hình kết nối Redis Cache
+  data:
+    redis:
+      host: localhost
+      port: 15673
+  
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  access-token-expiration: 900

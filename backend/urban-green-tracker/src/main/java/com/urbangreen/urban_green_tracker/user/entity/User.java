@@ -1,9 +1,14 @@
 package com.urbangreen.urban_green_tracker.user.entity;
 
+import com.urbangreen.urban_green_tracker.user.entity.enums.Role;
+import com.urbangreen.urban_green_tracker.user.entity.enums.UserStatus;
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.urbangreen.urban_green_tracker.user.entity.enums.UserStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -31,14 +36,16 @@ public class User {
     @Column(name = "provider_id", length = 255)
     private String providerId;
 
-    @Column(nullable = false, length = 20)
-    private String role; 
+    @Enumerated(EnumType.STRING) 
+    @Column(nullable = false)
+    Role role;
+
+    @Enumerated(EnumType.STRING) 
+    @Column(nullable = false)
+    UserStatus status;
 
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
-
-    @Column(nullable = false, length = 20)
-    private String status = "ACTIVE";
 
     @Column(name = "total_points", nullable = false)
     private Integer totalPoints = 0;
