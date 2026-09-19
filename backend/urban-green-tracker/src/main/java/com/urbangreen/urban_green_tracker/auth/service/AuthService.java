@@ -3,13 +3,14 @@ package com.urbangreen.urban_green_tracker.auth.service;
 
 import com.urbangreen.urban_green_tracker.auth.dto.LoginRequest;
 import com.urbangreen.urban_green_tracker.auth.dto.LoginResponse;
+import com.urbangreen.urban_green_tracker.auth.dto.RegisterRequest;
 import com.urbangreen.urban_green_tracker.exception.AppException;
 import com.urbangreen.urban_green_tracker.exception.ErrorCode;
 import com.urbangreen.urban_green_tracker.user.entity.User;
+import com.urbangreen.urban_green_tracker.user.entity.enums.Role;
 import com.urbangreen.urban_green_tracker.user.entity.enums.UserStatus;
 import com.urbangreen.urban_green_tracker.user.repository.UserRepository;
-import com.urbangreen.urban_green_tracker.auth.dto.RefreshTokenRequest;
-import java.sql.Ref;
+
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -74,7 +75,7 @@ public class AuthService {
 
         return LoginResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken("mock-refresh-token-waiting-for-phase-13") 
+                .refreshToken(refreshToken)
                 .build();
     }
 
@@ -117,6 +118,45 @@ public class AuthService {
             tokenService.blacklistAccessToken(accessToken.substring(7));
         }
         refreshTokenService.revokeAllUserSessions(currentUserId);
+    }
+
+    public LoginResponse register(RegisterRequest request) {
+        String email = request.getEmail().trim().toLowerCase();
+        String username = request.getUsername().trim();
+
+        // Validate email uniqueness
+        if (userRepository.existsByEmail(email)) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        // Validate username uniqueness
+        if (userRepository.existsByUsername(username)) {
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
+        }
+
+        // Create new user
+        User newUser = User.builder()
+                .username(username)
+                .email(email)
+                .password(passwordEncoder.encode(request.getPassword()))
+                .provider("local")
+                .role(Role.USER)
+                .status(UserStatus.ACTIVE)
+                .totalPoints(0)
+                .monthlyPoints(0)
+                .build();
+
+        userRepository.save(newUser);
+        log.info("New user registered: [{}] with email [{}]", username, email);
+
+        // Auto-login: issue tokens immediately after registration
+        String accessToken = tokenService.generateAccessToken(newUser);
+        String refreshToken = refreshTokenService.generateRefreshToken(newUser.getId());
+
+        return LoginResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
 }

@@ -28,6 +28,8 @@ public enum ErrorCode {
 
     // ===== 409 - Conflict =====
     USER_EXISTED(1008, "User already existed", HttpStatus.CONFLICT),
+    EMAIL_EXISTED(1012, "Email already in use", HttpStatus.CONFLICT),
+    USERNAME_EXISTED(1013, "Username already in use", HttpStatus.CONFLICT),
 
     // ===== 500 - Internal Server Error =====
     TOKEN_GENERATION_FAILED(1010, "Cannot generate token", HttpStatus.INTERNAL_SERVER_ERROR),

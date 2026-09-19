@@ -2,8 +2,7 @@ package com.urbangreen.urban_green_tracker.auth.controller;
 
 import com.urbangreen.urban_green_tracker.auth.dto.LoginRequest;
 import com.urbangreen.urban_green_tracker.auth.dto.LoginResponse;
-import com.urbangreen.urban_green_tracker.auth.dto.LogoutRequest;
-import com.urbangreen.urban_green_tracker.auth.dto.RefreshTokenRequest;
+import com.urbangreen.urban_green_tracker.auth.dto.RegisterRequest;
 import com.urbangreen.urban_green_tracker.auth.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
@@ -95,7 +94,7 @@ public class AuthenticationController {
         return ResponseCookie.from("refreshToken", token)
                 .httpOnly(true)       // Prevent JavaScript from accessing the cookie
                 .secure(false)        // Set to FALSE for localhost (HTTP). Must be TRUE in production (HTTPS).
-                .path("/api/v1/auth/refresh") // The cookie is sent only when requesting this specific path
+                .path("/api/v1/auth/refresh") // Cookie only sent when requesting this specific path
                 .maxAge(maxAgeInSeconds)
                 .sameSite("Strict")   // Helps protect against CSRF attacks
                 .build();
@@ -120,5 +119,19 @@ public class AuthenticationController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, deleteCookie.toString())
                 .body("Logged out from all devices");
+    }
+    @PostMapping("/register")
+    public ResponseEntity<LoginResponse> register(
+            @Valid @RequestBody RegisterRequest request) {
+
+        LoginResponse response = authService.register(request);
+
+        // Set the refresh token in an HttpOnly cookie, same as login
+        ResponseCookie cookie = buildCookie(response.getRefreshToken(), REFRESH_TOKEN_EXPIRY);
+        response.setRefreshToken(null);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(response);
     }
 }
