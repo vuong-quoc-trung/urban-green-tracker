@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# passwords, API keys, and other sensitive information
+.env
